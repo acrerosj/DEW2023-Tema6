@@ -4,23 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ejercicio 3</title>
+  <style>
+    .hide {
+      display:  none;
+    }
+  </style>
 </head>
 <body>
   <h1>Ejercicio 3 - Almacenar lista de tareas</h1>
   <p>
+    Filtro:
+    <input type="text" name="search" id="search" onkeyup="searchTasks()">
+  </p>
+  <p>
     <input type="text" name="task" id="task">
     <input type="submit" value="crear" onclick="createTask()">
+  </p>
+  <p>
+    <button onclick="deleteTasks()">Borrar tareas</button>
   </p>
   <h2>Lista de tareas</h2>
   <ul id="tasks"></ul>
   <script>
     const inputTask = document.getElementById('task');
     const tasks = document.getElementById('tasks');
+    const search = document.getElementById('search');
+
+    function searchTasks(){
+      let listLiTasks = tasks.querySelectorAll('li');
+      listLiTasks.forEach(task => {
+        if (task.textContent.includes(search.value)) {
+          task.classList.remove('hide');
+        } else {
+          task.classList.add('hide');
+        }
+      })
+    }
+
+    inputTask.addEventListener('keypress', e=>{
+      if (e.key == "Enter") {
+        createTask();
+      }
+    });
+
+    function deleteTasks() {
+      tasks.innerHTML='';
+      //localStorage.removeItem('tasks');
+      //localStorage.tastks = [];
+      //saveData();
+      delete localStorage.tasks;
+    } 
+    
+    function insertTaskLi(task) {
+      const li = document.createElement('li');
+      li.textContent = task;
+      li.addEventListener('click', deleteTask);
+      tasks.append(li); 
+    }
 
     function createTask() {
-      const li = document.createElement('li');
-      li.textContent = inputTask.value;
-      tasks.append(li);
+      insertTaskLi(inputTask.value);
       inputTask.value = '';
       inputTask.focus();
       saveData();
@@ -36,11 +79,15 @@
       if (localStorage.tasks) {
         let tasksText = JSON.parse(localStorage.tasks);
         tasksText.forEach(task => {
-          const li = document.createElement('li');
-          li.textContent = task;
-          tasks.append(li);                    
+          insertTaskLi(task);             
         });
       }
+    }
+
+    function deleteTask(e) {
+      console.log(e.target);
+      e.target.remove();
+      saveData();
     }
 
     loadData();
